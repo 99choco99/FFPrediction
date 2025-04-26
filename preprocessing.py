@@ -80,6 +80,6 @@ test_data = strat_test_set.drop("burned_area", axis=1)
 test_labels = strat_test_set["burned_area"].copy()
 test_prepared = full_pipeline.transform(test_data)
 
-joblib.dump(test_prepared, "test_prepared.pkl")
-joblib.dump(test_labels, "test_labels.pkl")
+joblib.dump(train_prepared, "train_prepared.pkl")
+joblib.dump(train_labels, "train_labels.pkl")
 joblib.dump(full_pipeline, "pipeline.pkl")

@@ -41,17 +41,9 @@ class LabForm(FlaskForm):
     submit = SubmitField('Submit')
 
 # 모델과 전처리 파이프라인 로드
-interpreter = tf.lite.Interpreter(model_path="fires_model.tflite")
-interpreter.allocate_tensors()
+model = keras.models.load_model("fires_model.keras")
+pipeline = joblib.load("pipeline.pkl")
 
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
-
-def predict_with_tflite(X_prepared):
-    interpreter.set_tensor(input_details[0]['index'], X_prepared.astype(np.float32))
-    interpreter.invoke()
-    prediction = interpreter.get_tensor(output_details[0]['index'])
-    return prediction
 
 # 홈(index) 페이지
 @app.route('/')
