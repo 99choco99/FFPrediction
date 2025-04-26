@@ -1,25 +1,13 @@
 import tensorflow as tf
 from tensorflow import keras
 import joblib
-
-print("TensorFlow version:", tf.__version__)
-print("Keras version:", keras.__version__)
-
 import numpy as np
 import pandas as pd
 from flask import Flask, render_template
-
 from flask_bootstrap import Bootstrap5
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
-
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.model_selection import train_test_split
-STRING_FIELD = StringField('max_wind_speed', validators=[DataRequired()])
 
 np.random.seed(42)
 
@@ -27,6 +15,10 @@ np.random.seed(42)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hard to guess string'
 bootstrap = Bootstrap5(app)
+
+# 모델과 파이프라인 변수를 글로벌로 선언만
+model = None
+pipeline = None
 
 # WTForms로 입력 폼 생성
 class LabForm(FlaskForm):
@@ -40,20 +32,21 @@ class LabForm(FlaskForm):
     avg_wind = StringField('avg_wind', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
-# 모델과 전처리 파이프라인 로드
-model = keras.models.load_model("fires_model.keras")
-pipeline = joblib.load("pipeline.pkl")
-
-
-# 홈(index) 페이지
 @app.route('/')
 @app.route('/index')
 def index():
     return render_template('index.html')
 
-# /prediction 페이지
 @app.route('/prediction', methods=['GET', 'POST'])
 def lab():
+    global model, pipeline
+
+    # 요청이 올 때 처음 한 번만 모델과 파이프라인 로드
+    if model is None:
+        model = keras.models.load_model("fires_model.keras")
+    if pipeline is None:
+        pipeline = joblib.load("pipeline.pkl")
+
     form = LabForm()
 
     if form.validate_on_submit():
@@ -66,7 +59,6 @@ def lab():
         max_wind_speed = float(form.max_wind_speed.data)
         avg_wind = float(form.avg_wind.data)
 
-
         data = pd.DataFrame([{
             'longitude': longitude,
             'latitude': latitude,
@@ -78,13 +70,9 @@ def lab():
             'avg_wind': avg_wind
         }])
 
-
         X_prepared = pipeline.transform(data)
-
-
         pred_log = model.predict(X_prepared)[0][0]
         burned_area = np.exp(pred_log) - 1
-
 
         return render_template('result.html', result=round(burned_area, 2))
 
