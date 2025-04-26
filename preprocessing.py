@@ -7,11 +7,10 @@ from pandas.plotting import scatter_matrix
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-import joblib  # 데이터를 저장하기 위해 사용
+import joblib
 
 
 fires = pd.read_csv("sanbul2district-divby100.csv")
-
 
 print(fires.head())
 print(fires.info())
@@ -41,7 +40,6 @@ for train_index, test_index in split.split(fires, fires["month"]):
     strat_train_set = fires.loc[train_index]
     strat_test_set = fires.loc[test_index]
 
-
 scatter_matrix(strat_train_set[["burned_area", "max_temp", "avg_temp", "avg_wind"]], figsize=(10, 8))
 plt.savefig("scatter_matrix.png")
 plt.clf()
@@ -57,6 +55,8 @@ plt.clf()
 
 train_data = strat_train_set.drop("burned_area", axis=1)
 train_labels = strat_train_set["burned_area"].copy()
+test_data = strat_test_set.drop("burned_area", axis=1)
+test_labels = strat_test_set["burned_area"].copy()
 
 
 num_attribs = train_data.drop(["month", "day"], axis=1).columns.tolist()
@@ -66,7 +66,6 @@ cat_attribs = ["month", "day"]
 num_pipeline = Pipeline([
     ("scaler", StandardScaler())
 ])
-
 full_pipeline = ColumnTransformer([
     ("num", num_pipeline, num_attribs),
     ("cat", OneHotEncoder(), cat_attribs)
@@ -74,12 +73,11 @@ full_pipeline = ColumnTransformer([
 
 
 train_prepared = full_pipeline.fit_transform(train_data)
-
-
-test_data = strat_test_set.drop("burned_area", axis=1)
-test_labels = strat_test_set["burned_area"].copy()
 test_prepared = full_pipeline.transform(test_data)
+
 
 joblib.dump(train_prepared, "train_prepared.pkl")
 joblib.dump(train_labels, "train_labels.pkl")
+joblib.dump(test_prepared, "test_prepared.pkl")
+joblib.dump(test_labels, "test_labels.pkl")
 joblib.dump(full_pipeline, "pipeline.pkl")

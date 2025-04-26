@@ -11,16 +11,13 @@ from wtforms.validators import DataRequired
 
 np.random.seed(42)
 
-# Flask 앱 초기화
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hard to guess string'
 bootstrap = Bootstrap5(app)
 
-# 모델과 파이프라인 변수를 글로벌로 선언만
 model = None
 pipeline = None
 
-# WTForms로 입력 폼 생성
 class LabForm(FlaskForm):
     longitude = StringField('longitude(1-7)', validators=[DataRequired()])
     latitude = StringField('latitude(1-7)', validators=[DataRequired()])
@@ -41,7 +38,6 @@ def index():
 def lab():
     global model, pipeline
 
-    # 요청이 올 때 처음 한 번만 모델과 파이프라인 로드
     if model is None:
         model = keras.models.load_model("fires_model.keras")
     if pipeline is None:
@@ -72,8 +68,8 @@ def lab():
 
         X_prepared = pipeline.transform(data)
         pred_log = model.predict(X_prepared)[0][0]
-        burned_area = np.exp(pred_log) - 1
-
+        burned_area = (np.exp(pred_log) - 1)
+        
         return render_template('result.html', result=round(burned_area, 2))
 
     return render_template('prediction.html', form=form)
