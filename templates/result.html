@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>산불 예측 결과</h2>
+            <div class="prediction-result-bg">
+                <p>산불 발생 예상 면적:</p>
+                <h3>{{ result }} m²</h3>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
