@@ -20,3 +20,8 @@ model.compile(loss="mean_squared_error",
 history = model.fit(train_prepared, train_labels, epochs=50, validation_split=0.2)
 
 model.save("model.h5")
+
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+tflite_model = converter.convert()
+with open("model.tflite", "wb") as f:
+    f.write(tflite_model)
