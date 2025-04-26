@@ -33,7 +33,7 @@ class LabForm(FlaskForm):
     longitude = StringField('longitude(1-7)', validators=[DataRequired()])
     latitude = StringField('latitude(1-7)', validators=[DataRequired()])
     month = StringField('month(01-Jan ~ Dec-12)', validators=[DataRequired()])
-    day = StringField('day(80-sun ~ 66-sat, 07-hol)', validators=[DataRequired()])
+    day = StringField('day(00-sun ~ 06-sat, 07-hol)', validators=[DataRequired()])
     avg_temp = StringField('avg_temp', validators=[DataRequired()])
     max_temp = StringField('max_temp', validators=[DataRequired()])
     max_wind_speed = StringField('max_wind_speed', validators=[DataRequired()])
